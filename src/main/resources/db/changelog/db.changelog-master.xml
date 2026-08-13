@@ -8,5 +8,10 @@
     <include file="db/changelog/changes/20260812182400-create-course-table.xml"/>
     <include file="db/changelog/changes/20260812182600-create-chapter-table.xml"/>
     <include file="db/changelog/changes/20260812190400-create-lesson-table.xml"/>
+    <include file="db/changelog/changes/20260813202500-insert-course-seed-data.xml"/>
+    <include file="db/changelog/changes/20260813213600-insert-chapter-seed-data.xml"/>
+    <include file="db/changelog/changes/20260813214700-insert-lesson-seed-data.xml"/>
+    <include file="db/changelog/changes/20260813220900-insert-lesson-2-seed-data.xml"/>
+    <include file="db/changelog/changes/20260813221000-reset-sequences.xml"/>
 
 </databaseChangeLog>

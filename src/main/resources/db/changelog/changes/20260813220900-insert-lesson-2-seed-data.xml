@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="20260813220900-insert-lesson-2-seed-data" author="iskander">
+        <insert tableName="lesson">
+            <column name="id" valueNumeric="2"/>
+            <column name="name" value="Циклы"/>
+            <column name="description" value="В этой теме мы познакомимся с циклами в Java. Зачем они нужны, для чего их используют и какую проблему они решают."/>
+            <column name="content" value="Цикл в Java представляет собой управляющую конструкцию, которая позволяет многократно выполнять один и тот же блок кода до тех пор, пока соблюдается определенное истинное условие. Повторяющийся блок кода называется телом цикла, а однократное его выполнение — итерацией. В языке Java существует три основных вида циклов: for, while и do-while, каждый из которых лучше подходит под конкретные задачи.&#10;&#10;Цикл for используется в случаях, когда количество повторений известно заранее. В его заголовке через точку с запятой указываются три элемента: инициализация счетчика, условие продолжения работы и изменение счетчика, выполняемое после каждой итерации. Сначала создается переменная-счетчик, затем проверяется условие, и если оно истинно, выполняется тело цикла, после чего счетчик изменяется, и проверка повторяется заново. Существует также усовершенствованная форма этого цикла, называемая for-each, которая предназначена для последовательного перебора всех элементов массивов или коллекций без использования явного индекса."/>
+            <column name="lesson_order" valueNumeric="2"/>
+            <column name="chapter_id" valueNumeric="1"/>
+            <column name="created_time" valueDate="2026-08-13T22:09:00"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

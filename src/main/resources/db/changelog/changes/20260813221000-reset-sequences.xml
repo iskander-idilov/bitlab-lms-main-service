@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="20260813221000-reset-sequences" author="iskander">
+        <sql>
+            SELECT setval(pg_get_serial_sequence('course', 'id'), (SELECT MAX(id) FROM course));
+            SELECT setval(pg_get_serial_sequence('chapter', 'id'), (SELECT MAX(id) FROM chapter));
+            SELECT setval(pg_get_serial_sequence('lesson', 'id'), (SELECT MAX(id) FROM lesson));
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,5 +1,4 @@
 package kz.bitlab.springboot.mainservice;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
