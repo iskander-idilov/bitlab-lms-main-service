@@ -6,9 +6,11 @@ import kz.bitlab.springboot.mainservice.entity.Course;
 import kz.bitlab.springboot.mainservice.mapper.CourseMapper;
 import kz.bitlab.springboot.mainservice.repository.CourseRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CourseService {
@@ -16,6 +18,9 @@ public class CourseService {
     private final CourseRepository courseRepository;
 
     public CourseResponse create (CreateCourseRequest request){
+        log.info("Creating new course");
+        log.debug("Request data: {}", request);
+
         Course course = courseMapper.toEntity(request);
         course.setCreatedTime(LocalDateTime.now());
         Course saved = courseRepository.save(course);
@@ -24,20 +29,34 @@ public class CourseService {
     }
 
     public CourseResponse getById(Long id){
+        log.info("Fetching course with id: {}", id);
+
         Course result = courseRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Course not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("Course not found with id: " + id));
 
         return courseMapper.toResponse(result);
     }
 
     public CourseResponse update(Long id, UpdateCourseRequest request){
+        log.info("Updating course with id: {}", id);
+        log.debug("Request data: {}", request);
+
         Course course = courseRepository.findById(id).
-                orElseThrow(() -> new RuntimeException("Course not found with id: " + id));
+                orElseThrow(() -> new IllegalArgumentException("Course not found with id: " + id));
         courseMapper.updateEntity(request, course);
         course.setUpdatedTime(LocalDateTime.now());
         Course saved = courseRepository.save(course);
 
         return courseMapper.toResponse(saved);
+    }
+
+    public void delete (Long id){
+        log.info("Deleting course with id: {}", id);
+
+        if (!courseRepository.existsById(id)) {
+            throw new IllegalArgumentException("Course not found with id: " + id);
+        }
+        courseRepository.deleteById(id);
     }
 
 }
