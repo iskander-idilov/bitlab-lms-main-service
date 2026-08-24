@@ -3,14 +3,15 @@ import kz.bitlab.springboot.mainservice.dto.request.CreateCourseRequest;
 import kz.bitlab.springboot.mainservice.dto.request.UpdateCourseRequest;
 import kz.bitlab.springboot.mainservice.dto.response.CourseResponse;
 import kz.bitlab.springboot.mainservice.entity.Course;
-import org.mapstruct.BeanMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface CourseMapper {
     Course toEntity(CreateCourseRequest request);
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "chapter", ignore = true)
+    @Mapping(target = "createdTime", ignore = true)
+    @Mapping(target = "updatedTime", ignore = true)
     CourseResponse toResponse (Course course);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
