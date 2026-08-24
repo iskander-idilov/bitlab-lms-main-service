@@ -7,11 +7,11 @@ import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface CourseMapper {
-    Course toEntity(CreateCourseRequest request);
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "chapter", ignore = true)
     @Mapping(target = "createdTime", ignore = true)
     @Mapping(target = "updatedTime", ignore = true)
+    Course toEntity(CreateCourseRequest request);
     CourseResponse toResponse (Course course);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

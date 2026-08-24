@@ -7,6 +7,7 @@ import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface ChapterMapper {
+
     @Mapping(source = "course.id", target = "courseId")
     ChapterResponse toResponse(Chapter chapter);
 
