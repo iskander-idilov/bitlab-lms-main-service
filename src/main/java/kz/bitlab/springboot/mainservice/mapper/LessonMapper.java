@@ -12,8 +12,13 @@ public interface LessonMapper {
     @Mapping(target = "createdTime", ignore = true)
     @Mapping(target = "updatedTime", ignore = true)
     Lesson toEntity(CreateLessonRequest request);
+    @Mapping(source = "chapter.id", target = "chapterId")
     LessonResponse toResponse(Lesson lesson);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "chapter", ignore = true)
+    @Mapping(target = "createdTime", ignore = true)
+    @Mapping(target = "updatedTime", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntity(UpdateLessonRequest request, @MappingTarget Lesson lesson);
 }

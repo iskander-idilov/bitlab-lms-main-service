@@ -17,6 +17,10 @@ public interface ChapterMapper {
     @Mapping(target = "updatedTime", ignore = true)
     Chapter toEntity(CreateChapterRequest request);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "course", ignore = true)
+    @Mapping(target = "createdTime", ignore = true)
+    @Mapping(target = "updatedTime", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntity(UpdateChapterRequest request, @MappingTarget Chapter chapter);
 }

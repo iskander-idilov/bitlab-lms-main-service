@@ -13,6 +13,9 @@ public interface CourseMapper {
     Course toEntity(CreateCourseRequest request);
     CourseResponse toResponse (Course course);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdTime", ignore = true)
+    @Mapping(target = "updatedTime", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntity(UpdateCourseRequest request, @MappingTarget Course course);
 
