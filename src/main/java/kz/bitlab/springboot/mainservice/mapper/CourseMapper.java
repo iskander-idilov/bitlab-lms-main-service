@@ -8,7 +8,6 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring")
 public interface CourseMapper {
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "chapter", ignore = true)
     @Mapping(target = "createdTime", ignore = true)
     @Mapping(target = "updatedTime", ignore = true)
     Course toEntity(CreateCourseRequest request);
