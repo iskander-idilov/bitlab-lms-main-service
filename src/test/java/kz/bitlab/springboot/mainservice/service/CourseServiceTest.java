@@ -10,6 +10,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.LocalDateTime;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -38,10 +40,12 @@ class CourseServiceTest {
         Course savedCourse = new Course();
         savedCourse.setId(1L);
         savedCourse.setName("Java Basics");
+        savedCourse.setCreatedTime(LocalDateTime.now());
 
         CourseResponse expectedResponse = new CourseResponse();
         expectedResponse.setId(1L);
         expectedResponse.setName("Java Basics");
+        expectedResponse.setCreatedTime(savedCourse.getCreatedTime());
 
         when(courseMapper.toEntity(request)).thenReturn(course);
         when(courseRepository.save(course)).thenReturn(savedCourse);
@@ -51,6 +55,7 @@ class CourseServiceTest {
 
         assertEquals(1L, result.getId());
         assertEquals("Java Basics", result.getName());
+        assertNotNull(result.getCreatedTime());
     }
 
     @Test
