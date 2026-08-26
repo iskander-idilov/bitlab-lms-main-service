@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="20260813213600-insert-chapter-seed-data" author="iskander">
+        <insert tableName="chapter">
+            <column name="id" valueNumeric="1"/>
+            <column name="name" value="Базовый Java. Модуль 1."/>
+            <column name="description" value="В этом модуле мы пройдёмся по основным инструментам в Java: типы данных, синтаксису, условиям (if\else) и многому другому."/>
+            <column name="chapter_order" valueNumeric="1"/>
+            <column name="course_id" valueNumeric="1"/>
+            <column name="created_time" valueDate="2026-08-13T21:36:00"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>
