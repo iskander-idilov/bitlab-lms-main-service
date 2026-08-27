@@ -22,7 +22,6 @@ public class CourseService {
         log.debug("Request data: {}", request);
 
         Course course = courseMapper.toEntity(request);
-        course.setCreatedTime(LocalDateTime.now());
         Course saved = courseRepository.save(course);
 
         return courseMapper.toResponse(saved);
@@ -44,7 +43,6 @@ public class CourseService {
         Course course = courseRepository.findById(id).
                 orElseThrow(() -> new IllegalArgumentException("Course not found with id: " + id));
         courseMapper.updateEntity(request, course);
-        course.setUpdatedTime(LocalDateTime.now());
         Course saved = courseRepository.save(course);
 
         return courseMapper.toResponse(saved);

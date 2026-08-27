@@ -2,11 +2,15 @@ package kz.bitlab.springboot.mainservice.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
+@EntityListeners(AuditingEntityListener.class)
 public class Chapter {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,9 +29,11 @@ public class Chapter {
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
-    @Column(name = "created_time", nullable = false)
+    @CreatedDate
+    @Column(name = "created_time", nullable = false, updatable = false)
     private LocalDateTime createdTime;
 
+    @LastModifiedDate
     @Column(name = "updated_time")
     private LocalDateTime updatedTime;
 }
