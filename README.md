@@ -154,7 +154,7 @@ http://localhost:8080/swagger-ui/index.html
 ./mvnw test
 ```
 
-## Логирование
+### Логирование
 
 Используется SLF4J с тремя уровнями:
 
