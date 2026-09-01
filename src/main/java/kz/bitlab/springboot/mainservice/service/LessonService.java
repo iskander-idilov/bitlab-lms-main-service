@@ -10,7 +10,6 @@ import kz.bitlab.springboot.mainservice.repository.LessonRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
 
 @Slf4j
 @Service
@@ -25,7 +24,6 @@ public class LessonService {
         log.debug("Request data: {}", request);
 
         Lesson lesson = lessonMapper.toEntity(request);
-        lesson.setCreatedTime(LocalDateTime.now());
         Chapter chapter = chapterRepository.findById(chapterId)
                 .orElseThrow(() -> new IllegalArgumentException("Chapter not found with id: " + chapterId));
         lesson.setChapter(chapter);
@@ -50,7 +48,6 @@ public class LessonService {
         Lesson lesson = lessonRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Lesson not found with id: " + id));
         lessonMapper.updateEntity(request, lesson);
-        lesson.setUpdatedTime(LocalDateTime.now());
         Lesson saved = lessonRepository.save(lesson);
 
         return lessonMapper.toResponse(saved);

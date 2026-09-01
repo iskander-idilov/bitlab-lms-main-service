@@ -1,5 +1,6 @@
 package kz.bitlab.springboot.mainservice.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import kz.bitlab.springboot.mainservice.config.SecurityConfig;
 import kz.bitlab.springboot.mainservice.dto.request.CreateLessonRequest;
 import kz.bitlab.springboot.mainservice.dto.request.UpdateLessonRequest;
 import kz.bitlab.springboot.mainservice.dto.response.LessonResponse;
@@ -7,6 +8,7 @@ import kz.bitlab.springboot.mainservice.service.LessonService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.ArgumentMatchers.any;
@@ -14,8 +16,10 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
 @WebMvcTest(LessonController.class)
+@Import(SecurityConfig.class)
 class LessonControllerTest {
 
     @Autowired
@@ -41,6 +45,7 @@ class LessonControllerTest {
         when(lessonService.create(eq(10L), any(CreateLessonRequest.class))).thenReturn(response);
 
         mockMvc.perform(post("/chapters/10/lessons")
+                        .with(jwt())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -56,6 +61,7 @@ class LessonControllerTest {
         request.setOrder(1);
 
         mockMvc.perform(post("/chapters/10/lessons")
+                        .with(jwt())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -69,7 +75,8 @@ class LessonControllerTest {
 
         when(lessonService.getById(100L)).thenReturn(response);
 
-        mockMvc.perform(get("/chapters/10/lessons/100"))
+        mockMvc.perform(get("/chapters/10/lessons/100")
+                .with(jwt()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(100L));
     }
@@ -79,7 +86,8 @@ class LessonControllerTest {
         when(lessonService.getById(999L))
                 .thenThrow(new IllegalArgumentException("Lesson not found with id: 999"));
 
-        mockMvc.perform(get("/chapters/10/lessons/999"))
+        mockMvc.perform(get("/chapters/10/lessons/999")
+                .with(jwt()))
                 .andExpect(status().isNotFound());
     }
 
@@ -95,6 +103,7 @@ class LessonControllerTest {
         when(lessonService.update(eq(100L), any(UpdateLessonRequest.class))).thenReturn(response);
 
         mockMvc.perform(patch("/chapters/10/lessons/100")
+                        .with(jwt())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -103,7 +112,8 @@ class LessonControllerTest {
 
     @Test
     void shouldDeleteLesson() throws Exception {
-        mockMvc.perform(delete("/chapters/10/lessons/100"))
+        mockMvc.perform(delete("/chapters/10/lessons/100")
+                .with(jwt()))
                 .andExpect(status().isNoContent());
     }
 }

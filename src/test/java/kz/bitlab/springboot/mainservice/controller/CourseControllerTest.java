@@ -1,5 +1,7 @@
 package kz.bitlab.springboot.mainservice.controller;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import kz.bitlab.springboot.mainservice.config.SecurityConfig;
 import kz.bitlab.springboot.mainservice.dto.request.CreateCourseRequest;
 import kz.bitlab.springboot.mainservice.dto.request.UpdateCourseRequest;
 import kz.bitlab.springboot.mainservice.dto.response.CourseResponse;
@@ -7,6 +9,7 @@ import kz.bitlab.springboot.mainservice.service.CourseService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.ArgumentMatchers.any;
@@ -16,6 +19,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(CourseController.class)
+@Import(SecurityConfig.class)
 class CourseControllerTest {
 
     @Autowired
@@ -40,6 +44,7 @@ class CourseControllerTest {
         when(courseService.create(any(CreateCourseRequest.class))).thenReturn(response);
 
         mockMvc.perform(post("/courses")
+                        .with(jwt())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -53,6 +58,7 @@ class CourseControllerTest {
         request.setName("");
 
         mockMvc.perform(post("/courses")
+                        .with(jwt())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -66,7 +72,8 @@ class CourseControllerTest {
 
         when(courseService.getById(1L)).thenReturn(response);
 
-        mockMvc.perform(get("/courses/1"))
+        mockMvc.perform(get("/courses/1")
+                        .with(jwt()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.name").value("Java Basics"));
@@ -77,7 +84,8 @@ class CourseControllerTest {
         when(courseService.getById(999L))
                 .thenThrow(new IllegalArgumentException("Course not found with id: 999"));
 
-        mockMvc.perform(get("/courses/999"))
+        mockMvc.perform(get("/courses/999")
+                        .with(jwt()))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("Course not found with id: 999"));
     }
@@ -94,6 +102,7 @@ class CourseControllerTest {
         when(courseService.update(eq(1L), any(UpdateCourseRequest.class))).thenReturn(response);
 
         mockMvc.perform(patch("/courses/1")
+                        .with(jwt())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -102,7 +111,8 @@ class CourseControllerTest {
 
     @Test
     void shouldDeleteCourse() throws Exception {
-        mockMvc.perform(delete("/courses/1"))
+        mockMvc.perform(delete("/courses/1")
+                        .with(jwt()))
                 .andExpect(status().isNoContent());
     }
 }
