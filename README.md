@@ -129,17 +129,64 @@ http://localhost:8080/swagger-ui/index.html
 
 Все ошибки возвращаются в едином формате через `GlobalExceptionHandler`:
 
-```json
+json
 {
   "message": "Course not found with id: 999",
   "status": 404,
   "timestamp": "2026-08-18T10:15:30"
 }
-```
+
 
 - `404` — сущность не найдена
 - `400` — ошибка валидации входных данных
 - `500` — непредвиденная ошибка сервера (стектрейс в ответе клиенту не отображается, только в логах сервера)
+
+## Аутентификация
+
+Аутентификация делегирована Keycloak — main-service выступает прокси-слоем, скрывающим client_secret от клиента.
+
+### Эндпоинт
+
+POST /auth/login
+Content-Type: application/json
+
+{
+"username": "admin1",
+"password": "..."
+}
+
+Успешный ответ (200 OK):
+{
+"access_token": "...",
+"expires_in": 300,
+"refresh_expires_in": 604800,
+"refresh_token": "...",
+"token_type": "Bearer"
+}
+
+Неверные учётные данные (401 Unauthorized):
+{
+"message": "Invalid username or password",
+"status": 401,
+"timestamp": "..."
+}
+
+### Сроки жизни токенов
+
+- Access token: 5 минут
+- Refresh token: 168 часов (7 дней)
+
+Настроены на стороне Keycloak (realm settings accessTokenLifespan, ssoSessionMaxLifespan, ssoSessionIdleTimeout) — см. bitlab-lms-infra.
+
+### Использование токена
+
+Полученный access_token передаётся в заголовке для всех защищённых эндпоинтов:
+Authorization: Bearer <access_token>
+
+### Настройка
+
+main-service требует переменную окружения KEYCLOAK_CLIENT_SECRET (тот же секрет, что задан в bitlab-lms-infra для клиента main-service) — задаётся в main-service/.env (не коммитится).
+
 
 ## Тестирование
 
@@ -150,9 +197,9 @@ http://localhost:8080/swagger-ui/index.html
 
 Запуск тестов:
 
-```bash
+bash
 ./mvnw test
-```
+
 
 ### Логирование
 
