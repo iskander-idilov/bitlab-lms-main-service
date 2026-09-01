@@ -10,6 +10,7 @@ REST API для управления образовательным контен
 - [Docker](#docker)
 - [API документация](#api-документация)
 - [Основные эндпоинты](#основные-эндпоинты)
+- [Аутентификация](#аутентификация)
 - [Тестирование](#тестирование)
 - [Логирование](#логирование)
 - [Структура проекта](#структура-проекта)
@@ -129,13 +130,13 @@ http://localhost:8080/swagger-ui/index.html
 
 Все ошибки возвращаются в едином формате через `GlobalExceptionHandler`:
 
-json
+```json
 {
   "message": "Course not found with id: 999",
   "status": 404,
   "timestamp": "2026-08-18T10:15:30"
 }
-
+```
 
 - `404` — сущность не найдена
 - `400` — ошибка валидации входных данных
@@ -143,50 +144,124 @@ json
 
 ## Аутентификация
 
-Аутентификация делегирована Keycloak — main-service выступает прокси-слоем, скрывающим client_secret от клиента.
+Аутентификация делегирована Keycloak — main-service выступает прокси-слоем, скрывающим `client_secret` от клиента.
 
 ### Эндпоинт
 
+```http
 POST /auth/login
 Content-Type: application/json
 
 {
-"username": "admin1",
-"password": "..."
+  "username": "admin1",
+  "password": "..."
 }
+```
 
-Успешный ответ (200 OK):
-{
-"access_token": "...",
-"expires_in": 300,
-"refresh_expires_in": 604800,
-"refresh_token": "...",
-"token_type": "Bearer"
-}
+Успешный ответ (`200 OK`):
 
-Неверные учётные данные (401 Unauthorized):
+```json
 {
-"message": "Invalid username or password",
-"status": 401,
-"timestamp": "..."
+  "access_token": "...",
+  "expires_in": 300,
+  "refresh_expires_in": 604800,
+  "refresh_token": "...",
+  "token_type": "Bearer"
 }
+```
+
+Неверные учётные данные (`401 Unauthorized`):
+
+```json
+{
+  "message": "Invalid username or password",
+  "status": 401,
+  "timestamp": "..."
+}
+```
+
+### Обновление токена
+
+```http
+POST /auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "..."
+}
+```
+
+Успешный ответ (`200 OK`) — та же структура, что и `/auth/login`, с новой парой access/refresh токенов.
+
+Невалидный или истёкший refresh token (`401 Unauthorized`):
+
+```json
+{
+  "message": "Invalid or expired refresh token",
+  "status": 401,
+  "timestamp": "..."
+}
+```
 
 ### Сроки жизни токенов
 
 - Access token: 5 минут
 - Refresh token: 168 часов (7 дней)
 
-Настроены на стороне Keycloak (realm settings accessTokenLifespan, ssoSessionMaxLifespan, ssoSessionIdleTimeout) — см. bitlab-lms-infra.
+Настроены на стороне Keycloak (realm settings `accessTokenLifespan`, `ssoSessionMaxLifespan`, `ssoSessionIdleTimeout`) — см. bitlab-lms-infra.
 
 ### Использование токена
 
-Полученный access_token передаётся в заголовке для всех защищённых эндпоинтов:
+Полученный `access_token` передаётся в заголовке для всех защищённых эндпоинтов:
+
+```http
 Authorization: Bearer <access_token>
+```
 
 ### Настройка
 
-main-service требует переменную окружения KEYCLOAK_CLIENT_SECRET (тот же секрет, что задан в bitlab-lms-infra для клиента main-service) — задаётся в main-service/.env (не коммитится).
+main-service требует переменную окружения `KEYCLOAK_CLIENT_SECRET` (тот же секрет, что задан в bitlab-lms-infra для клиента main-service) — задаётся в `main-service/.env` (не коммитится).
 
+### Управление пользователями
+
+Регистрация пользователя (только для администраторов):
+
+```http
+POST /users
+Authorization: Bearer <access_token с ролью ROLE_ADMIN>
+Content-Type: application/json
+```
+
+```json
+{
+  "username": "newteacher",
+  "email": "teacher@mail.ru",
+  "firstName": "New",
+  "lastName": "Teacher",
+  "password": "SecurePass123",
+  "role": "ROLE_TEACHER"
+}
+```
+
+Доступные роли: `ROLE_STUDENT`, `ROLE_INSTRUCTOR`, `ROLE_ADMIN`, `ROLE_TEACHER`, `ROLE_USER`.
+
+Успешный ответ: `201 Created` (без тела).
+
+Доступ запрещён (`403 Forbidden`) — если у вызывающего нет роли `ROLE_ADMIN`:
+
+```json
+{
+  "message": "Access denied: insufficient permissions",
+  "status": 403,
+  "timestamp": "..."
+}
+```
+
+#### Как это работает
+
+main-service использует Keycloak Service Account (Client Credentials Grant) для вызова Keycloak Admin API от своего собственного имени — отдельно от токена вызывающего администратора. Создание пользователя, установка пароля и назначение роли выполняются тремя последовательными запросами к Keycloak Admin API.
+
+Требует, чтобы Service Account клиента main-service в Keycloak имел роль `realm-admin` (или как минимум `manage-users` + права на чтение ролей realm) — настраивается через Clients → main-service → Service accounts roles в Keycloak UI.
 
 ## Тестирование
 
@@ -197,11 +272,11 @@ main-service требует переменную окружения KEYCLOAK_CLI
 
 Запуск тестов:
 
-bash
+```bash
 ./mvnw test
+```
 
-
-### Логирование
+## Логирование
 
 Используется SLF4J с тремя уровнями:
 
@@ -218,11 +293,11 @@ src/main/java/kz/bitlab/springboot/mainservice/
 ├── mapper/           # MapStruct-мапперы
 ├── entity/           # JPA-сущности
 ├── dto/
-│   ├── request/       # Create/Update DTO
-│   └── response/       # Response DTO
+│   ├── request/      # Create/Update DTO
+│   └── response/     # Response DTO
 ├── repository/       # Spring Data JPA репозитории
-├── exception/         # GlobalExceptionHandler, ErrorResponse
-└── config/            # Конфигурация (OpenAPI и др.)
+├── exception/        # GlobalExceptionHandler, ErrorResponse
+└── config/           # Конфигурация (OpenAPI и др.)
 ```
 
 ## Roadmap

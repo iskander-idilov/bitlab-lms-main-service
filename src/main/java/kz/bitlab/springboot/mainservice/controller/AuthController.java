@@ -1,6 +1,7 @@
 package kz.bitlab.springboot.mainservice.controller;
 import jakarta.validation.Valid;
 import kz.bitlab.springboot.mainservice.dto.request.LoginRequest;
+import kz.bitlab.springboot.mainservice.dto.request.RefreshTokenRequest;
 import kz.bitlab.springboot.mainservice.dto.response.TokenResponse;
 import kz.bitlab.springboot.mainservice.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -21,5 +22,10 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.status(HttpStatus.OK).body(authService.login(request));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<TokenResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
+        return ResponseEntity.status(HttpStatus.OK).body(authService.refresh(request));
     }
 }

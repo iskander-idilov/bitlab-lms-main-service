@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record KeycloakProperties(
         String tokenUri,
         String clientId,
-        String clientSecret
+        String clientSecret,
+        String adminUsersUri
 ) {
 }

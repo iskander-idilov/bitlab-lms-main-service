@@ -3,6 +3,7 @@ package kz.bitlab.springboot.mainservice.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kz.bitlab.springboot.mainservice.config.SecurityConfig;
 import kz.bitlab.springboot.mainservice.dto.request.LoginRequest;
+import kz.bitlab.springboot.mainservice.dto.request.RefreshTokenRequest;
 import kz.bitlab.springboot.mainservice.dto.response.TokenResponse;
 import kz.bitlab.springboot.mainservice.exception.InvalidCredentialsException;
 import kz.bitlab.springboot.mainservice.service.AuthService;
@@ -75,5 +76,34 @@ class AuthControllerTest {
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturnNewTokenWhenRefreshSucceeds() throws Exception {
+        RefreshTokenRequest request = new RefreshTokenRequest("valid-refresh-token");
+
+        TokenResponse response = new TokenResponse();
+        response.setAccessToken("new-access-token");
+
+        when(authService.refresh(any(RefreshTokenRequest.class))).thenReturn(response);
+
+        mockMvc.perform(post("/auth/refresh")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.access_token").value("new-access-token"));
+    }
+
+    @Test
+    void shouldReturnUnauthorizedWhenRefreshTokenIsInvalid() throws Exception {
+        RefreshTokenRequest request = new RefreshTokenRequest("invalid-refresh-token");
+
+        when(authService.refresh(any(RefreshTokenRequest.class)))
+                .thenThrow(new InvalidCredentialsException("Invalid or expired refresh token"));
+
+        mockMvc.perform(post("/auth/refresh")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized());
     }
 }
