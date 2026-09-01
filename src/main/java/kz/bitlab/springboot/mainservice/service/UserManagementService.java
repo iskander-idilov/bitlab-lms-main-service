@@ -1,6 +1,8 @@
 package kz.bitlab.springboot.mainservice.service;
 import kz.bitlab.springboot.mainservice.config.KeycloakProperties;
 import kz.bitlab.springboot.mainservice.dto.request.CreateUserRequest;
+import kz.bitlab.springboot.mainservice.dto.request.UpdateRoleRequest;
+import kz.bitlab.springboot.mainservice.dto.request.UpdateUserRequest;
 import kz.bitlab.springboot.mainservice.exception.InvalidCredentialsException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -108,6 +110,46 @@ public class UserManagementService {
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(List.of(role))
+                .retrieve()
+                .toBodilessEntity();
+    }
+
+    public void updateUser(String userId, UpdateUserRequest request) {
+        log.info("Updating user: {}", userId);
+
+        String serviceToken = getServiceAccountToken();
+
+        if (request.firstName() != null || request.lastName() != null || request.email() != null) {
+            updateKeycloakUser(userId, request, serviceToken);
+        }
+
+        if (request.password() != null) {
+            setPassword(userId, request.password(), serviceToken);
+        }
+
+        log.info("User updated successfully: {}", userId);
+    }
+
+    public void updateUserRole(String userId, UpdateRoleRequest request) {
+        log.info("Updating role for user: {} to {}", userId, request.role());
+
+        String serviceToken = getServiceAccountToken();
+        assignRole(userId, request.role().name(), serviceToken);
+
+        log.info("Role updated successfully for user: {}", userId);
+    }
+
+    private void updateKeycloakUser(String userId, UpdateUserRequest request, String token) {
+        Map<String, Object> body = new java.util.HashMap<>();
+        if (request.firstName() != null) body.put("firstName", request.firstName());
+        if (request.lastName() != null) body.put("lastName", request.lastName());
+        if (request.email() != null) body.put("email", request.email());
+
+        keycloakRestClient.put()
+                .uri(keycloakProperties.adminUsersUri() + "/" + userId)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body)
                 .retrieve()
                 .toBodilessEntity();
     }

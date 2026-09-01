@@ -224,7 +224,9 @@ main-service требует переменную окружения `KEYCLOAK_CL
 
 ### Управление пользователями
 
-Регистрация пользователя (только для администраторов):
+#### Регистрация пользователя
+
+Только для администраторов:
 
 ```http
 POST /users
@@ -242,6 +244,59 @@ Content-Type: application/json
   "role": "ROLE_TEACHER"
 }
 ```
+
+Успешный ответ: `201 Created` (без тела).
+
+Доступ запрещён (`403 Forbidden`) — если у вызывающего нет роли `ROLE_ADMIN`:
+
+```json
+{
+  "message": "Access denied: insufficient permissions",
+  "status": 403,
+  "timestamp": "..."
+}
+```
+
+#### Изменение своих данных
+
+Доступно всем аутентифицированным пользователям:
+
+```http
+PATCH /users/me
+Authorization: Bearer <access_token любого аутентифицированного пользователя>
+Content-Type: application/json
+```
+
+```json
+{
+  "firstName": "NewName",
+  "lastName": "NewLastName",
+  "email": "new@example.com",
+  "password": "NewPassword123"
+}
+```
+
+Все поля опциональны (partial update) — можно передать только те, что нужно изменить. Пользователь обновляет только свои собственные данные — id определяется из `sub` claim JWT-токена, а не передаётся в запросе.
+
+Успешный ответ: `200 OK` (без тела).
+
+#### Смена роли пользователя
+
+Только для администраторов:
+
+```http
+PATCH /users/{id}/role
+Authorization: Bearer <access_token с ролью ROLE_ADMIN>
+Content-Type: application/json
+```
+
+```json
+{
+  "role": "ROLE_TEACHER"
+}
+```
+
+`{id}` — Keycloak id пользователя, роль которого нужно изменить.
 
 Доступные роли: `ROLE_STUDENT`, `ROLE_INSTRUCTOR`, `ROLE_ADMIN`, `ROLE_TEACHER`, `ROLE_USER`.
 
