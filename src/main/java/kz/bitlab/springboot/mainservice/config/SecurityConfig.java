@@ -37,6 +37,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/chapters/{chapterId}/lessons").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/chapters/{chapterId}/lessons/{id}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/chapters/{chapterId}/lessons/{id}").hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.POST, "/upload").hasAnyRole("ADMIN", "TEACHER")
+
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2

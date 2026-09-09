@@ -1,6 +1,6 @@
-# Bitlab LMS — Main Service
+# Bitlab LMS – Main Service
 
-REST API для управления образовательным контентом Bitlab LMS: курсы, главы и уроки. Один из микросервисов платформы Bitlab LMS для Bitlab Academy — отвечает за структуру и содержимое учебных программ.
+REST API для управления образовательным контентом Bitlab LMS: курсы, главы и уроки. Один из микросервисов платформы Bitlab LMS для Bitlab Academy – отвечает за структуру и содержимое учебных программ.
 
 ## Содержание
 
@@ -11,6 +11,7 @@ REST API для управления образовательным контен
 - [API документация](#api-документация)
 - [Основные эндпоинты](#основные-эндпоинты)
 - [Аутентификация](#аутентификация)
+- [Загрузка и скачивание файлов (вложения)](#загрузка-и-скачивание-файлов-вложения)
 - [Тестирование](#тестирование)
 - [Логирование](#логирование)
 - [Структура проекта](#структура-проекта)
@@ -20,15 +21,15 @@ REST API для управления образовательным контен
 
 - **Java 17**
 - **Spring Boot 4.1.0** (Web, Data JPA, Validation)
-- **PostgreSQL** — основная база данных
-- **Liquibase** — управление миграциями схемы БД
-- **MapStruct** — маппинг между Entity и DTO
-- **Lombok** — сокращение boilerplate-кода
-- **Springdoc OpenAPI (Swagger)** — автогенерация API-документации
-- **SLF4J + Logback** — логирование
-- **JUnit 5 + Mockito** — unit-тестирование
-- **Maven** — сборка проекта
-- **Docker** — контейнеризация
+- **PostgreSQL** – основная база данных
+- **Liquibase** – управление миграциями схемы БД
+- **MapStruct** – маппинг между Entity и DTO
+- **Lombok** – сокращение boilerplate-кода
+- **Springdoc OpenAPI (Swagger)** – автогенерация API-документации
+- **SLF4J + Logback** – логирование
+- **JUnit 5 + Mockito** – unit-тестирование
+- **Maven** – сборка проекта
+- **Docker** – контейнеризация
 
 ## Архитектура
 
@@ -40,11 +41,11 @@ Controller → Service → Mapper + Repository → Entity → PostgreSQL
               DTO (Request/Response)
 ```
 
-- **Controller** — принимает HTTP-запросы, работает только с DTO
-- **Service** — бизнес-логика, единственный слой, работающий и с DTO, и с Entity
-- **Mapper** (MapStruct) — преобразование Entity ↔ DTO
-- **Repository** (Spring Data JPA) — доступ к БД
-- **GlobalExceptionHandler** — централизованная обработка ошибок (`@RestControllerAdvice`)
+- **Controller** – принимает HTTP-запросы, работает только с DTO
+- **Service** – бизнес-логика, единственный слой, работающий и с DTO, и с Entity
+- **Mapper** (MapStruct) – преобразование Entity ↔ DTO
+- **Repository** (Spring Data JPA) – доступ к БД
+- **GlobalExceptionHandler** – централизованная обработка ошибок (`@RestControllerAdvice`)
 
 ### Доменная модель
 
@@ -54,7 +55,7 @@ Course (курс)
         └── Lesson (урок)
 ```
 
-Каждая глава принадлежит курсу, каждый урок — главе (связи `@ManyToOne`).
+Каждая глава принадлежит курсу, каждый урок – главе (связи `@ManyToOne`).
 
 ## Быстрый старт
 
@@ -124,7 +125,7 @@ http://localhost:8080/swagger-ui/index.html
 | `PATCH` | `/chapters/{chapterId}/lessons/{id}` | Частично обновить урок |
 | `DELETE` | `/chapters/{chapterId}/lessons/{id}` | Удалить урок |
 
-Полный список — в Swagger UI.
+Полный список – в Swagger UI.
 
 ### Обработка ошибок
 
@@ -138,13 +139,13 @@ http://localhost:8080/swagger-ui/index.html
 }
 ```
 
-- `404` — сущность не найдена
-- `400` — ошибка валидации входных данных
-- `500` — непредвиденная ошибка сервера (стектрейс в ответе клиенту не отображается, только в логах сервера)
+- `404` – сущность не найдена
+- `400` – ошибка валидации входных данных
+- `500` – непредвиденная ошибка сервера (стектрейс в ответе клиенту не отображается, только в логах сервера)
 
 ## Аутентификация
 
-Аутентификация делегирована Keycloak — main-service выступает прокси-слоем, скрывающим `client_secret` от клиента.
+Аутентификация делегирована Keycloak – main-service выступает прокси-слоем, скрывающим `client_secret` от клиента.
 
 ### Эндпоинт
 
@@ -191,7 +192,7 @@ Content-Type: application/json
 }
 ```
 
-Успешный ответ (`200 OK`) — та же структура, что и `/auth/login`, с новой парой access/refresh токенов.
+Успешный ответ (`200 OK`) –  та же структура, что и `/auth/login`, с новой парой access/refresh токенов.
 
 Невалидный или истёкший refresh token (`401 Unauthorized`):
 
@@ -208,7 +209,7 @@ Content-Type: application/json
 - Access token: 5 минут
 - Refresh token: 168 часов (7 дней)
 
-Настроены на стороне Keycloak (realm settings `accessTokenLifespan`, `ssoSessionMaxLifespan`, `ssoSessionIdleTimeout`) — см. bitlab-lms-infra.
+Настроены на стороне Keycloak (realm settings `accessTokenLifespan`, `ssoSessionMaxLifespan`, `ssoSessionIdleTimeout`) – см. bitlab-lms-infra.
 
 ### Использование токена
 
@@ -220,13 +221,13 @@ Authorization: Bearer <access_token>
 
 ### Настройка
 
-main-service требует переменную окружения `KEYCLOAK_CLIENT_SECRET` (тот же секрет, что задан в bitlab-lms-infra для клиента main-service) — задаётся в `main-service/.env` (не коммитится).
+main-service требует переменную окружения `KEYCLOAK_CLIENT_SECRET` (тот же секрет, что задан в bitlab-lms-infra для клиента main-service) – задаётся в `main-service/.env` (не коммитится).
 
 ### Права доступа к курсам
 
 Создание, обновление и удаление курсов (`POST /courses`, `PATCH /courses/{id}`, `DELETE /courses/{id}`) доступны только пользователям с ролью `ROLE_ADMIN`. Просмотр (`GET`) доступен любому аутентифицированному пользователю.
 
-Доступ запрещён (`403 Forbidden`) — если у вызывающего нет роли `ROLE_ADMIN`:
+Доступ запрещён (`403 Forbidden`) – если у вызывающего нет роли `ROLE_ADMIN`:
 
 ```json
 {
@@ -240,7 +241,7 @@ main-service требует переменную окружения `KEYCLOAK_CL
 
 Создание, обновление и удаление глав (`POST /courses/{courseId}/chapters`, `PATCH /courses/{courseId}/chapters/{id}`, `DELETE /courses/{courseId}/chapters/{id}`) и уроков (`POST /chapters/{chapterId}/lessons`, `PATCH /chapters/{chapterId}/lessons/{id}`, `DELETE /chapters/{chapterId}/lessons/{id}`) доступны только пользователям с ролью `ROLE_ADMIN`. Просмотр (`GET`) доступен любому аутентифицированному пользователю.
 
-Доступ запрещён (`403 Forbidden`) — если у вызывающего нет роли `ROLE_ADMIN`:
+Доступ запрещён (`403 Forbidden`) – если у вызывающего нет роли `ROLE_ADMIN`:
 
 ```json
 {
@@ -275,7 +276,7 @@ Content-Type: application/json
 
 Успешный ответ: `201 Created` (без тела).
 
-Доступ запрещён (`403 Forbidden`) — если у вызывающего нет роли `ROLE_ADMIN`:
+Доступ запрещён (`403 Forbidden`) – если у вызывающего нет роли `ROLE_ADMIN`:
 
 ```json
 {
@@ -304,7 +305,7 @@ Content-Type: application/json
 }
 ```
 
-Все поля опциональны (partial update) — можно передать только те, что нужно изменить. Пользователь обновляет только свои собственные данные — id определяется из `sub` claim JWT-токена, а не передаётся в запросе.
+Все поля опциональны (partial update) – можно передать только те, что нужно изменить. Пользователь обновляет только свои собственные данные – id определяется из `sub` claim JWT-токена, а не передаётся в запросе.
 
 Успешный ответ: `200 OK` (без тела).
 
@@ -324,13 +325,13 @@ Content-Type: application/json
 }
 ```
 
-`{id}` — Keycloak id пользователя, роль которого нужно изменить.
+`{id}` – Keycloak id пользователя, роль которого нужно изменить.
 
 Доступные роли: `ROLE_STUDENT`, `ROLE_INSTRUCTOR`, `ROLE_ADMIN`, `ROLE_TEACHER`, `ROLE_USER`.
 
 Успешный ответ: `201 Created` (без тела).
 
-Доступ запрещён (`403 Forbidden`) — если у вызывающего нет роли `ROLE_ADMIN`:
+Доступ запрещён (`403 Forbidden`) – если у вызывающего нет роли `ROLE_ADMIN`:
 
 ```json
 {
@@ -342,16 +343,58 @@ Content-Type: application/json
 
 #### Как это работает
 
-main-service использует Keycloak Service Account (Client Credentials Grant) для вызова Keycloak Admin API от своего собственного имени — отдельно от токена вызывающего администратора. Создание пользователя, установка пароля и назначение роли выполняются тремя последовательными запросами к Keycloak Admin API.
+main-service использует Keycloak Service Account (Client Credentials Grant) для вызова Keycloak Admin API от своего собственного имени – отдельно от токена вызывающего администратора. Создание пользователя, установка пароля и назначение роли выполняются тремя последовательными запросами к Keycloak Admin API.
 
-Требует, чтобы Service Account клиента main-service в Keycloak имел роль `realm-admin` (или как минимум `manage-users` + права на чтение ролей realm) — настраивается через Clients → main-service → Service accounts roles в Keycloak UI.
+Требует, чтобы Service Account клиента main-service в Keycloak имел роль `realm-admin` (или как минимум `manage-users` + права на чтение ролей realm) – настраивается через Clients → main-service → Service accounts roles в Keycloak UI.
+
+## Загрузка и скачивание файлов (вложения)
+
+### Загрузка вложения (только ADMIN и TEACHER)
+
+```http
+POST /upload
+Authorization: Bearer <access_token с ролью ROLE_ADMIN или ROLE_TEACHER>
+Content-Type: multipart/form-data
+```
+
+Параметры:
+
+- `lessonId` – id урока, к которому прикрепляется файл
+- `file` – сам файл
+
+Успешный ответ (`201 Created`):
+
+```json
+{
+  "id": 1,
+  "name": "document.pdf",
+  "url": "uuid-document.pdf",
+  "lessonId": 1,
+  "createdTime": "..."
+}
+```
+
+### Скачивание вложения (доступно всем аутентифицированным)
+
+```http
+GET /download/{id}
+Authorization: Bearer <access_token>
+```
+
+Возвращает сам файл (бинарные данные), с заголовками `Content-Type` и `Content-Disposition`.
+
+### Хранение файлов
+
+Файлы физически хранятся в MinIO (S3-совместимое объектное хранилище) – в бакете `dev-bucket`, который создаётся автоматически при первом запуске bitlab-lms-infra (см. README инфра-репозитория). В базе данных (main-service) хранятся только метаданные – имя файла, ключ объекта в MinIO, привязка к уроку, время создания.
+
+Доступ к MinIO Console: http://localhost:9001
 
 ## Тестирование
 
 Проект покрыт unit-тестами (JUnit 5 + Mockito):
 
-- **Service-слой** — тесты на `CourseService`, `ChapterService`, `LessonService` с моками `Repository`/`Mapper`, включая проверку исключений при отсутствующих сущностях
-- **Controller-слой** — тесты через `MockMvc` и `@WebMvcTest`, включая проверку валидации запросов
+- **Service-слой** – тесты на `CourseService`, `ChapterService`, `LessonService` с моками `Repository`/`Mapper`, включая проверку исключений при отсутствующих сущностях
+- **Controller-слой** – тесты через `MockMvc` и `@WebMvcTest`, включая проверку валидации запросов
 
 Запуск тестов:
 
@@ -363,9 +406,9 @@ main-service использует Keycloak Service Account (Client Credentials G
 
 Используется SLF4J с тремя уровнями:
 
-- **INFO** — ключевые события (создание/обновление/удаление сущностей)
-- **DEBUG** — подробные данные запросов (для отладки)
-- **ERROR** — все перехваченные исключения
+- **INFO** – ключевые события (создание/обновление/удаление сущностей)
+- **DEBUG** – подробные данные запросов (для отладки)
+- **ERROR** – все перехваченные исключения
 
 ## Структура проекта
 
@@ -387,12 +430,12 @@ src/main/java/kz/bitlab/springboot/mainservice/
 
 Проект разрабатывается в рамках практикума поэтапно:
 
-- [x] Sprint 1 — CRUD для Course / Chapter / Lesson, Swagger, логирование, unit-тесты, Docker
+- [x] Sprint 1 – CRUD для Course / Chapter / Lesson, Swagger, логирование, unit-тесты, Docker
 - [ ] Интеграция с User Service (аутентификация, роли, JWT)
-- [ ] Интеграция с File Service (хранение файлов уроков)
+- [x] Интеграция с File Service (хранение файлов уроков в MinIO)
 - [ ] Spring Security
 - [ ] Docker Compose для оркестрации всех сервисов платформы
 
 ---
 
-Часть экосистемы **Bitlab LMS** — учебной платформы Bitlab Academy, построенной на микросервисной архитектуре.
+Часть экосистемы **Bitlab LMS** - учебной платформы Bitlab Academy, построенной на микросервисной архитектуре.
