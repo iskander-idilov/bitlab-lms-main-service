@@ -431,10 +431,10 @@ src/main/java/kz/bitlab/springboot/mainservice/
 Проект разрабатывается в рамках практикума поэтапно:
 
 - [x] Sprint 1 - CRUD для Course / Chapter / Lesson, Swagger, логирование, unit-тесты, Docker
-- [ ] Интеграция с User Service (аутентификация, роли, JWT)
+- [x] Интеграция с User Service (аутентификация, роли, JWT)
 - [x] Интеграция с File Service (хранение файлов уроков в MinIO)
-- [ ] Spring Security
-- [ ] Docker Compose для оркестрации всех сервисов платформы
+- [x] Spring Security
+- [x] Docker Compose для оркестрации всех сервисов платформы
 
 ---
 
