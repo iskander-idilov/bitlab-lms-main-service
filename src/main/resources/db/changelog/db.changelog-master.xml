@@ -13,5 +13,6 @@
     <include file="db/changelog/changes/20260813214700-insert-lesson-seed-data.xml"/>
     <include file="db/changelog/changes/20260813220900-insert-lesson-2-seed-data.xml"/>
     <include file="db/changelog/changes/20260813221000-reset-sequences.xml"/>
+    <include file="db/changelog/changes/20260909213000-create-attachment-table.xml"/>
 
 </databaseChangeLog>

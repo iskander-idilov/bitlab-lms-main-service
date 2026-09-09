@@ -11,7 +11,7 @@ public class OpenApiConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Bitlab LMS — Main Service API")
+                        .title("Bitlab LMS - Main Service API")
                         .version("1.0")
                         .description("REST API для управления образовательным контентом Bitlab LMS: курсы, главы и уроки. Поддерживает создание, чтение, обновление и удаление сущностей."));
     }

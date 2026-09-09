@@ -78,10 +78,16 @@ class ChapterServiceTest {
 
     @Test
     void shouldReturnChapterWhenFound() {
+        Long courseId = 1L;
         Long id = 10L;
+
+        Course course = new Course();
+        course.setId(courseId);
+
         Chapter chapter = new Chapter();
         chapter.setId(id);
         chapter.setName("Intro");
+        chapter.setCourse(course);
 
         ChapterResponse expectedResponse = new ChapterResponse();
         expectedResponse.setId(id);
@@ -90,7 +96,7 @@ class ChapterServiceTest {
         when(chapterRepository.findById(id)).thenReturn(Optional.of(chapter));
         when(chapterMapper.toResponse(chapter)).thenReturn(expectedResponse);
 
-        ChapterResponse result = chapterService.getById(id);
+        ChapterResponse result = chapterService.getById(courseId, id);
 
         assertEquals(id, result.getId());
         assertEquals("Intro", result.getName());
@@ -98,21 +104,27 @@ class ChapterServiceTest {
 
     @Test
     void shouldThrowExceptionWhenChapterNotFoundOnGetById() {
+        Long courseId = 1L;
         Long id = 999L;
         when(chapterRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> chapterService.getById(id));
+        assertThrows(IllegalArgumentException.class, () -> chapterService.getById(courseId, id));
     }
 
     @Test
     void shouldUpdateChapter() {
+        Long courseId = 1L;
         Long id = 10L;
         UpdateChapterRequest request = new UpdateChapterRequest();
         request.setName("Updated Intro");
 
+        Course course = new Course();
+        course.setId(courseId);
+
         Chapter chapter = new Chapter();
         chapter.setId(id);
         chapter.setName("Intro");
+        chapter.setCourse(course);
 
         Chapter savedChapter = new Chapter();
         savedChapter.setId(id);
@@ -126,7 +138,7 @@ class ChapterServiceTest {
         when(chapterRepository.save(chapter)).thenReturn(savedChapter);
         when(chapterMapper.toResponse(savedChapter)).thenReturn(expectedResponse);
 
-        ChapterResponse result = chapterService.update(id, request);
+        ChapterResponse result = chapterService.update(courseId, id, request);
 
         assertEquals("Updated Intro", result.getName());
         verify(chapterMapper).updateEntity(request, chapter);
@@ -134,29 +146,41 @@ class ChapterServiceTest {
 
     @Test
     void shouldThrowExceptionWhenChapterNotFoundOnUpdate() {
+        Long courseId = 1L;
         Long id = 999L;
         UpdateChapterRequest request = new UpdateChapterRequest();
         when(chapterRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> chapterService.update(id, request));
+        assertThrows(IllegalArgumentException.class, () -> chapterService.update(courseId, id, request));
     }
 
     @Test
     void shouldDeleteChapter() {
+        Long courseId = 1L;
         Long id = 10L;
-        when(chapterRepository.existsById(id)).thenReturn(true);
 
-        chapterService.delete(id);
+        Course course = new Course();
+        course.setId(courseId);
+
+        Chapter chapter = new Chapter();
+        chapter.setId(id);
+        chapter.setCourse(course);
+
+        when(chapterRepository.findById(id)).thenReturn(Optional.of(chapter));
+
+        chapterService.delete(courseId, id);
 
         verify(chapterRepository).deleteById(id);
     }
 
     @Test
     void shouldThrowExceptionWhenChapterNotFoundOnDelete() {
+        Long courseId = 1L;
         Long id = 999L;
-        when(chapterRepository.existsById(id)).thenReturn(false);
 
-        assertThrows(IllegalArgumentException.class, () -> chapterService.delete(id));
+        when(chapterRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () -> chapterService.delete(courseId, id));
         verify(chapterRepository, never()).deleteById(any());
     }
 }

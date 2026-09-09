@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.ArgumentMatchers.any;
@@ -45,7 +46,7 @@ class LessonControllerTest {
         when(lessonService.create(eq(10L), any(CreateLessonRequest.class))).thenReturn(response);
 
         mockMvc.perform(post("/chapters/10/lessons")
-                        .with(jwt())
+                        .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN")))
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -61,7 +62,7 @@ class LessonControllerTest {
         request.setOrder(1);
 
         mockMvc.perform(post("/chapters/10/lessons")
-                        .with(jwt())
+                        .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN")))
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -73,7 +74,7 @@ class LessonControllerTest {
         response.setId(100L);
         response.setName("Variables");
 
-        when(lessonService.getById(100L)).thenReturn(response);
+        when(lessonService.getById(10L, 100L)).thenReturn(response);
 
         mockMvc.perform(get("/chapters/10/lessons/100")
                 .with(jwt()))
@@ -83,7 +84,7 @@ class LessonControllerTest {
 
     @Test
     void shouldReturnNotFoundWhenLessonDoesNotExist() throws Exception {
-        when(lessonService.getById(999L))
+        when(lessonService.getById(10L, 999L))
                 .thenThrow(new IllegalArgumentException("Lesson not found with id: 999"));
 
         mockMvc.perform(get("/chapters/10/lessons/999")
@@ -100,10 +101,10 @@ class LessonControllerTest {
         response.setId(100L);
         response.setContent("Updated content");
 
-        when(lessonService.update(eq(100L), any(UpdateLessonRequest.class))).thenReturn(response);
+        when(lessonService.update(eq(10L), eq(100L), any(UpdateLessonRequest.class))).thenReturn(response);
 
         mockMvc.perform(patch("/chapters/10/lessons/100")
-                        .with(jwt())
+                        .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN")))
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -113,7 +114,42 @@ class LessonControllerTest {
     @Test
     void shouldDeleteLesson() throws Exception {
         mockMvc.perform(delete("/chapters/10/lessons/100")
-                .with(jwt()))
+                        .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))))
                 .andExpect(status().isNoContent());
+    }
+
+    //Дальше уже идут не обязательные тесты, но я решил подстраховаться
+    //это негативные тесты для проверки роли Admin. Проверка, что без роли ADMIN операции запрещены (403)
+
+    @Test
+    void shouldReturnForbiddenWhenCreatingLessonWithoutAdminRole() throws Exception {
+        CreateLessonRequest request = new CreateLessonRequest();
+        request.setName("Variables");
+        request.setOrder(1);
+
+        mockMvc.perform(post("/chapters/1/lessons")
+                        .with(jwt())
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void shouldReturnForbiddenWhenUpdatingLessonWithoutAdminRole() throws Exception {
+        UpdateLessonRequest request = new UpdateLessonRequest();
+        request.setName("Updated Variables");
+
+        mockMvc.perform(patch("/chapters/1/lessons/10")
+                        .with(jwt())
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void shouldReturnForbiddenWhenDeletingLessonWithoutAdminRole() throws Exception {
+        mockMvc.perform(delete("/chapters/1/lessons/10")
+                        .with(jwt()))
+                .andExpect(status().isForbidden());
     }
 }

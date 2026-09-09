@@ -17,6 +17,14 @@ import org.springframework.web.client.RestClient;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+    private static final String GRANT_TYPE = "grant_type";
+    private static final String GRANT_TYPE_PASSWORD = "password";
+    private static final String GRANT_TYPE_REFRESH_TOKEN = "refresh_token";
+    private static final String CLIENT_ID = "client_id";
+    private static final String CLIENT_SECRET = "client_secret";
+    private static final String USERNAME = "username";
+    private static final String PASSWORD = "password";
+    private static final String REFRESH_TOKEN = "refresh_token";
 
     private final RestClient keycloakRestClient;
     private final KeycloakProperties keycloakProperties;
@@ -25,11 +33,11 @@ public class AuthService {
         log.info("Authenticating user: {}", request.getUsername());
 
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.add("grant_type", "password");
-        formData.add("client_id", keycloakProperties.clientId());
-        formData.add("client_secret", keycloakProperties.clientSecret());
-        formData.add("username", request.getUsername());
-        formData.add("password", request.getPassword());
+        formData.add(GRANT_TYPE, GRANT_TYPE_PASSWORD);
+        formData.add(CLIENT_ID, keycloakProperties.clientId());
+        formData.add(CLIENT_SECRET, keycloakProperties.clientSecret());
+        formData.add(USERNAME, request.getUsername());
+        formData.add(PASSWORD, request.getPassword());
 
         try {
             return keycloakRestClient.post()
@@ -49,10 +57,10 @@ public class AuthService {
         log.info("Refreshing token");
 
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.add("grant_type", "refresh_token");
-        formData.add("client_id", keycloakProperties.clientId());
-        formData.add("client_secret", keycloakProperties.clientSecret());
-        formData.add("refresh_token", request.refreshToken());
+        formData.add(GRANT_TYPE, GRANT_TYPE_REFRESH_TOKEN);
+        formData.add(CLIENT_ID, keycloakProperties.clientId());
+        formData.add(CLIENT_SECRET, keycloakProperties.clientSecret());
+        formData.add(REFRESH_TOKEN, request.refreshToken());
 
         try {
             return keycloakRestClient.post()
