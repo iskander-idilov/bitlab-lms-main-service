@@ -73,7 +73,7 @@ class LessonControllerTest {
         response.setId(100L);
         response.setName("Variables");
 
-        when(lessonService.getById(100L)).thenReturn(response);
+        when(lessonService.getById(10L, 100L)).thenReturn(response);
 
         mockMvc.perform(get("/chapters/10/lessons/100")
                 .with(jwt()))
@@ -83,7 +83,7 @@ class LessonControllerTest {
 
     @Test
     void shouldReturnNotFoundWhenLessonDoesNotExist() throws Exception {
-        when(lessonService.getById(999L))
+        when(lessonService.getById(10L, 999L))
                 .thenThrow(new IllegalArgumentException("Lesson not found with id: 999"));
 
         mockMvc.perform(get("/chapters/10/lessons/999")
@@ -100,7 +100,7 @@ class LessonControllerTest {
         response.setId(100L);
         response.setContent("Updated content");
 
-        when(lessonService.update(eq(100L), any(UpdateLessonRequest.class))).thenReturn(response);
+        when(lessonService.update(eq(10L), eq(100L), any(UpdateLessonRequest.class))).thenReturn(response);
 
         mockMvc.perform(patch("/chapters/10/lessons/100")
                         .with(jwt())

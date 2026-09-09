@@ -32,33 +32,46 @@ public class LessonService {
         return lessonMapper.toResponse(saved);
     }
 
-    public LessonResponse getById(Long id){
-        log.info("Fetching lesson with id: {}", id);
+    public LessonResponse getById(Long chapterId, Long id){
+        log.debug("Fetching course with id: {}", id);
 
         Lesson lesson = lessonRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Lesson not found with id: " + id));
 
+        if (!lesson.getChapter().getId().equals(chapterId)){
+            throw new IllegalArgumentException("Lesson with id: " + id + " does not belong to chapter with id: " + chapterId);
+        }
+
         return lessonMapper.toResponse(lesson);
     }
 
-    public LessonResponse update (Long id, UpdateLessonRequest request){
+    public LessonResponse update (Long chapterId, Long id, UpdateLessonRequest request){
         log.info("Updating lesson with id: {}", id);
         log.debug("Request data: {}", request);
 
         Lesson lesson = lessonRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Lesson not found with id: " + id));
+
+        if (!lesson.getChapter().getId().equals(chapterId)){
+            throw new IllegalArgumentException("Lesson with id: " + id + " does not belong to chapter with id: " + chapterId);
+        }
+
         lessonMapper.updateEntity(request, lesson);
         Lesson saved = lessonRepository.save(lesson);
 
         return lessonMapper.toResponse(saved);
     }
 
-    public void delete (Long id){
+    public void delete (Long chapterId, Long id){
         log.info("Deleting lesson with id: {}", id);
 
-        if (!lessonRepository.existsById(id)){
-            throw new IllegalArgumentException("Lesson not found with id: " + id);
+        Lesson lesson = lessonRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Lesson not found with id: " + id));
+
+        if (!lesson.getChapter().getId().equals(chapterId)){
+            throw new IllegalArgumentException("Lesson with id: " + id + " does not belong to chapter with id: " + chapterId);
         }
+
         lessonRepository.deleteById(id);
     }
 }

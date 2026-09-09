@@ -38,7 +38,7 @@ public class LessonController {
     })
     @GetMapping("/{id}")
     public ResponseEntity <LessonResponse> getById (@PathVariable Long chapterId, @PathVariable Long id){
-        return ResponseEntity.status(HttpStatus.OK).body(lessonService.getById(id));
+        return ResponseEntity.status(HttpStatus.OK).body(lessonService.getById(chapterId, id));
     }
     @Operation(summary = "Частично обновить данные", description = "Позволяет обновить данные только по полученным полям")
     @ApiResponses(value = {
@@ -48,7 +48,7 @@ public class LessonController {
     })
     @PatchMapping("/{id}")
     public ResponseEntity <LessonResponse> update (@PathVariable Long chapterId, @PathVariable Long id, @Valid @RequestBody UpdateLessonRequest request){
-        return ResponseEntity.status(HttpStatus.OK).body(lessonService.update(id, request));
+        return ResponseEntity.status(HttpStatus.OK).body(lessonService.update(chapterId, id, request));
     }
     @Operation(summary = "Удалить урок", description = "Удаляет урок по id")
     @ApiResponses(value = {
@@ -57,7 +57,7 @@ public class LessonController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity <Void> delete (@PathVariable Long chapterId, @PathVariable Long id){
-        lessonService.delete(id);
+        lessonService.delete(chapterId, id);
         return ResponseEntity.noContent().build();
     }
 }

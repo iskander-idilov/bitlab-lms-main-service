@@ -79,10 +79,16 @@ class LessonServiceTest {
 
     @Test
     void shouldReturnLessonWhenFound() {
+        Long chapterId = 1L;
         Long id = 100L;
+
+        Chapter chapter = new Chapter();
+        chapter.setId(chapterId);
+
         Lesson lesson = new Lesson();
         lesson.setId(id);
         lesson.setName("Variables");
+        lesson.setChapter(chapter);
 
         LessonResponse expectedResponse = new LessonResponse();
         expectedResponse.setId(id);
@@ -91,7 +97,7 @@ class LessonServiceTest {
         when(lessonRepository.findById(id)).thenReturn(Optional.of(lesson));
         when(lessonMapper.toResponse(lesson)).thenReturn(expectedResponse);
 
-        LessonResponse result = lessonService.getById(id);
+        LessonResponse result = lessonService.getById(chapterId, id);
 
         assertEquals(id, result.getId());
         assertEquals("Variables", result.getName());
@@ -99,22 +105,28 @@ class LessonServiceTest {
 
     @Test
     void shouldThrowExceptionWhenLessonNotFoundOnGetById() {
+        Long chapterId = 1L;
         Long id = 999L;
         when(lessonRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> lessonService.getById(id));
+        assertThrows(IllegalArgumentException.class, () -> lessonService.getById(chapterId, id));
     }
 
     @Test
     void shouldUpdateLesson() {
+        Long chapterId = 1L;
         Long id = 100L;
         UpdateLessonRequest request = new UpdateLessonRequest();
         request.setContent("Updated content");
+
+        Chapter chapter = new Chapter();
+        chapter.setId(chapterId);
 
         Lesson lesson = new Lesson();
         lesson.setId(id);
         lesson.setName("Variables");
         lesson.setContent("Old content");
+        lesson.setChapter(chapter);
 
         Lesson savedLesson = new Lesson();
         savedLesson.setId(id);
@@ -129,7 +141,7 @@ class LessonServiceTest {
         when(lessonRepository.save(lesson)).thenReturn(savedLesson);
         when(lessonMapper.toResponse(savedLesson)).thenReturn(expectedResponse);
 
-        LessonResponse result = lessonService.update(id, request);
+        LessonResponse result = lessonService.update(chapterId, id, request);
 
         assertEquals("Updated content", result.getContent());
         verify(lessonMapper).updateEntity(request, lesson);
@@ -137,29 +149,41 @@ class LessonServiceTest {
 
     @Test
     void shouldThrowExceptionWhenLessonNotFoundOnUpdate() {
+        Long chapterId = 1L;
         Long id = 999L;
         UpdateLessonRequest request = new UpdateLessonRequest();
         when(lessonRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> lessonService.update(id, request));
+        assertThrows(IllegalArgumentException.class, () -> lessonService.update(chapterId, id, request));
     }
 
     @Test
     void shouldDeleteLesson() {
+        Long chapterId = 1L;
         Long id = 100L;
-        when(lessonRepository.existsById(id)).thenReturn(true);
 
-        lessonService.delete(id);
+        Chapter chapter = new Chapter();
+        chapter.setId(chapterId);
+
+        Lesson lesson = new Lesson();
+        lesson.setId(id);
+        lesson.setChapter(chapter);
+
+        when(lessonRepository.findById(id)).thenReturn(Optional.of(lesson));
+
+        lessonService.delete(chapterId, id);
 
         verify(lessonRepository).deleteById(id);
     }
 
     @Test
     void shouldThrowExceptionWhenLessonNotFoundOnDelete() {
+        Long chapterId = 1L;
         Long id = 999L;
-        when(lessonRepository.existsById(id)).thenReturn(false);
 
-        assertThrows(IllegalArgumentException.class, () -> lessonService.delete(id));
+        when(lessonRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () -> lessonService.delete(chapterId, id));
         verify(lessonRepository, never()).deleteById(any());
     }
 }

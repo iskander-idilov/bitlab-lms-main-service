@@ -71,7 +71,7 @@ class ChapterControllerTest {
         response.setId(10L);
         response.setName("Intro");
 
-        when(chapterService.getById(10L)).thenReturn(response);
+        when(chapterService.getById(1L, 10L)).thenReturn(response);
 
         mockMvc.perform(get("/courses/1/chapters/10")
                         .with(jwt()))
@@ -81,7 +81,7 @@ class ChapterControllerTest {
 
     @Test
     void shouldReturnNotFoundWhenChapterDoesNotExist() throws Exception {
-        when(chapterService.getById(999L))
+        when(chapterService.getById(1L, 999L))
                 .thenThrow(new IllegalArgumentException("Chapter not found with id: 999"));
 
         mockMvc.perform(get("/courses/1/chapters/999")
@@ -98,7 +98,7 @@ class ChapterControllerTest {
         response.setId(10L);
         response.setName("Updated Intro");
 
-        when(chapterService.update(eq(10L), any(UpdateChapterRequest.class))).thenReturn(response);
+        when(chapterService.update(eq(1L), eq(10L), any(UpdateChapterRequest.class))).thenReturn(response);
 
         mockMvc.perform(patch("/courses/1/chapters/10")
                         .with(jwt())

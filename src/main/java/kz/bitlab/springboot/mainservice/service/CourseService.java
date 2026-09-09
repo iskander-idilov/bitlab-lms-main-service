@@ -27,7 +27,7 @@ public class CourseService {
     }
 
     public CourseResponse getById(Long id){
-        log.info("Fetching course with id: {}", id);
+        log.debug("Fetching course with id: {}", id);
 
         Course result = courseRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Course not found with id: " + id));

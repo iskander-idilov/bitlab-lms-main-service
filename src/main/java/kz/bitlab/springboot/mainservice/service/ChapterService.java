@@ -32,33 +32,46 @@ public class ChapterService {
         return chapterMapper.toResponse(saved);
     }
 
-    public ChapterResponse getById (Long id){
-        log.info("Fetching chapter with id: {}", id);
+    public ChapterResponse getById (Long courseId, Long id){
+        log.debug("Fetching course with id: {}", id);
 
         Chapter chapter = chapterRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Chapter not found with id: " + id));
 
+        if (!chapter.getCourse().getId().equals(courseId)){
+            throw new IllegalArgumentException("Chapter with id: " + id + " does not belong to course with id: " + courseId);
+        }
         return chapterMapper.toResponse(chapter);
     }
 
-    public ChapterResponse update (Long id, UpdateChapterRequest request){
+    public ChapterResponse update (Long courseId, Long id, UpdateChapterRequest request){
         log.info("Updating chapter with id: {}", id);
         log.debug("Request data: {}", request);
 
         Chapter chapter = chapterRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Chapter not found with id: " + id));
+
+        if (!chapter.getCourse().getId().equals(courseId)){
+            throw new IllegalArgumentException("Chapter with id: " + id + " does not belong to course with id: " + courseId);
+        }
+
         chapterMapper.updateEntity(request, chapter);
         Chapter saved = chapterRepository.save(chapter);
+
 
         return chapterMapper.toResponse(saved);
     }
 
-    public void delete (Long id){
+    public void delete (Long courseId, Long id){
         log.info("Deleting chapter with id: {}", id);
 
-        if (!chapterRepository.existsById(id)){
-            throw new IllegalArgumentException("Course not found with id: " + id);
+        Chapter chapter = chapterRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Chapter not found with id: " + id));
+
+        if (!chapter.getCourse().getId().equals(courseId)){
+            throw new IllegalArgumentException("Chapter with id: " + id + " does not belong to course with id: " + courseId);
         }
+
         chapterRepository.deleteById(id);
     }
 }

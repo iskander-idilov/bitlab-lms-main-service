@@ -37,7 +37,7 @@ public class ChapterController {
     })
     @GetMapping("/{id}")
     public ResponseEntity <ChapterResponse> getById (@PathVariable Long courseId, @PathVariable Long id){
-        return ResponseEntity.status(HttpStatus.OK).body(chapterService.getById(id));
+        return ResponseEntity.status(HttpStatus.OK).body(chapterService.getById(courseId, id));
     }
     @Operation(summary = "Частично обновить данные", description = "Позволяет обновить данные только по полученным полям")
     @ApiResponses(value = {
@@ -47,7 +47,7 @@ public class ChapterController {
     })
     @PatchMapping("/{id}")
     public ResponseEntity <ChapterResponse> update (@PathVariable Long courseId, @PathVariable Long id, @Valid @RequestBody UpdateChapterRequest request){
-        return ResponseEntity.status(HttpStatus.OK).body(chapterService.update(id, request));
+        return ResponseEntity.status(HttpStatus.OK).body(chapterService.update(courseId, id, request));
     }
     @Operation(summary = "Удалить главу", description = "Удаляет главу по id")
     @ApiResponses(value = {
@@ -56,7 +56,7 @@ public class ChapterController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity <Void> delete (@PathVariable Long courseId, @PathVariable Long id){
-        chapterService.delete(id);
+        chapterService.delete(courseId, id);
         return ResponseEntity.noContent().build();
     }
 }

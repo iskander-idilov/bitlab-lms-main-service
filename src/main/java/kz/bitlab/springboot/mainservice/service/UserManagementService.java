@@ -21,6 +21,25 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class UserManagementService {
 
+    private static final String GRANT_TYPE = "grant_type";
+    private static final String GRANT_TYPE_CLIENT_CREDENTIALS = "client_credentials";
+    private static final String CLIENT_ID = "client_id";
+    private static final String CLIENT_SECRET = "client_secret";
+    private static final String ACCESS_TOKEN = "access_token";
+
+    private static final String FIELD_USERNAME = "username";
+    private static final String FIELD_EMAIL = "email";
+    private static final String FIELD_FIRST_NAME = "firstName";
+    private static final String FIELD_LAST_NAME = "lastName";
+    private static final String FIELD_ENABLED = "enabled";
+    private static final String FIELD_EMAIL_VERIFIED = "emailVerified";
+
+    private static final String CREDENTIAL_TYPE = "type";
+    private static final String CREDENTIAL_TYPE_PASSWORD = "password";
+    private static final String CREDENTIAL_VALUE = "value";
+    private static final String CREDENTIAL_TEMPORARY = "temporary";
+
+
     private final RestClient keycloakRestClient;
     private final KeycloakProperties keycloakProperties;
 
@@ -38,9 +57,9 @@ public class UserManagementService {
 
     private String getServiceAccountToken() {
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.add("grant_type", "client_credentials");
-        formData.add("client_id", keycloakProperties.clientId());
-        formData.add("client_secret", keycloakProperties.clientSecret());
+        formData.add(GRANT_TYPE, GRANT_TYPE_CLIENT_CREDENTIALS);
+        formData.add(CLIENT_ID, keycloakProperties.clientId());
+        formData.add(CLIENT_SECRET, keycloakProperties.clientSecret());
 
         Map<String, Object> response = keycloakRestClient.post()
                 .uri(keycloakProperties.tokenUri())
@@ -54,12 +73,12 @@ public class UserManagementService {
 
     private String createKeycloakUser(CreateUserRequest request, String token) {
         Map<String, Object> body = Map.of(
-                "username", request.username(),
-                "email", request.email(),
-                "firstName", request.firstName(),
-                "lastName", request.lastName(),
-                "enabled", true,
-                "emailVerified", true
+                FIELD_USERNAME, request.username(),
+                FIELD_EMAIL, request.email(),
+                FIELD_FIRST_NAME, request.firstName(),
+                FIELD_LAST_NAME, request.lastName(),
+                FIELD_ENABLED, true,
+                FIELD_EMAIL_VERIFIED, true
         );
 
         var response = keycloakRestClient.post()
@@ -81,9 +100,9 @@ public class UserManagementService {
 
     private void setPassword(String userId, String password, String token) {
         Map<String, Object> body = Map.of(
-                "type", "password",
-                "value", password,
-                "temporary", false
+                CREDENTIAL_TYPE, CREDENTIAL_TYPE_PASSWORD,
+                CREDENTIAL_VALUE, password,
+                CREDENTIAL_TEMPORARY, false
         );
 
         keycloakRestClient.put()
@@ -141,9 +160,9 @@ public class UserManagementService {
 
     private void updateKeycloakUser(String userId, UpdateUserRequest request, String token) {
         Map<String, Object> body = new java.util.HashMap<>();
-        if (request.firstName() != null) body.put("firstName", request.firstName());
-        if (request.lastName() != null) body.put("lastName", request.lastName());
-        if (request.email() != null) body.put("email", request.email());
+        if (request.firstName() != null) body.put(FIELD_FIRST_NAME, request.firstName());
+        if (request.lastName() != null) body.put(FIELD_LAST_NAME, request.lastName());
+        if (request.email() != null) body.put(FIELD_EMAIL, request.email());
 
         keycloakRestClient.put()
                 .uri(keycloakProperties.adminUsersUri() + "/" + userId)
