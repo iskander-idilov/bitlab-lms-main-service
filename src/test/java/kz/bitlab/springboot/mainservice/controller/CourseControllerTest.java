@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,7 +45,7 @@ class CourseControllerTest {
         when(courseService.create(any(CreateCourseRequest.class))).thenReturn(response);
 
         mockMvc.perform(post("/courses")
-                        .with(jwt())
+                        .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN")))
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -58,7 +59,7 @@ class CourseControllerTest {
         request.setName("");
 
         mockMvc.perform(post("/courses")
-                        .with(jwt())
+                        .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN")))
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -102,7 +103,7 @@ class CourseControllerTest {
         when(courseService.update(eq(1L), any(UpdateCourseRequest.class))).thenReturn(response);
 
         mockMvc.perform(patch("/courses/1")
-                        .with(jwt())
+                        .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN")))
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -112,7 +113,41 @@ class CourseControllerTest {
     @Test
     void shouldDeleteCourse() throws Exception {
         mockMvc.perform(delete("/courses/1")
-                        .with(jwt()))
+                        .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))))
                 .andExpect(status().isNoContent());
+    }
+
+    //Дальше уже идут не обязательные тесты, но я решил подстраховаться
+    //это негативные тесты для проверки роли Admin. Проверка, что без роли ADMIN операции запрещены (403)
+    @Test
+    void shouldReturnForbiddenWhenCreatingCourseWithoutAdminRole() throws Exception {
+        CreateCourseRequest request = new CreateCourseRequest();
+        request.setName("Java Basics");
+        request.setDescription("Learn Java");
+
+        mockMvc.perform(post("/courses")
+                        .with(jwt())
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void shouldReturnForbiddenWhenUpdatingCourseWithoutAdminRole() throws Exception {
+        UpdateCourseRequest request = new UpdateCourseRequest();
+        request.setName("Updated Name");
+
+        mockMvc.perform(patch("/courses/1")
+                        .with(jwt())
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void shouldReturnForbiddenWhenDeletingCourseWithoutAdminRole() throws Exception {
+        mockMvc.perform(delete("/courses/1")
+                        .with(jwt()))
+                .andExpect(status().isForbidden());
     }
 }

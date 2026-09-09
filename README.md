@@ -222,6 +222,34 @@ Authorization: Bearer <access_token>
 
 main-service требует переменную окружения `KEYCLOAK_CLIENT_SECRET` (тот же секрет, что задан в bitlab-lms-infra для клиента main-service) — задаётся в `main-service/.env` (не коммитится).
 
+### Права доступа к курсам
+
+Создание, обновление и удаление курсов (`POST /courses`, `PATCH /courses/{id}`, `DELETE /courses/{id}`) доступны только пользователям с ролью `ROLE_ADMIN`. Просмотр (`GET`) доступен любому аутентифицированному пользователю.
+
+Доступ запрещён (`403 Forbidden`) — если у вызывающего нет роли `ROLE_ADMIN`:
+
+```json
+{
+  "message": "Access denied: insufficient permissions",
+  "status": 403,
+  "timestamp": "..."
+}
+```
+
+### Права доступа к главам и урокам
+
+Создание, обновление и удаление глав (`POST /courses/{courseId}/chapters`, `PATCH /courses/{courseId}/chapters/{id}`, `DELETE /courses/{courseId}/chapters/{id}`) и уроков (`POST /chapters/{chapterId}/lessons`, `PATCH /chapters/{chapterId}/lessons/{id}`, `DELETE /chapters/{chapterId}/lessons/{id}`) доступны только пользователям с ролью `ROLE_ADMIN`. Просмотр (`GET`) доступен любому аутентифицированному пользователю.
+
+Доступ запрещён (`403 Forbidden`) — если у вызывающего нет роли `ROLE_ADMIN`:
+
+```json
+{
+  "message": "Access denied: insufficient permissions",
+  "status": 403,
+  "timestamp": "..."
+}
+```
+
 ### Управление пользователями
 
 #### Регистрация пользователя

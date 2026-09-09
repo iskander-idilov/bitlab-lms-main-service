@@ -1,6 +1,7 @@
 package kz.bitlab.springboot.mainservice.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -25,6 +26,17 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/courses").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/courses/{id}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/courses/{id}").hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.POST, "/courses/{courseId}/chapters").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/courses/{courseId}/chapters/{id}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/courses/{courseId}/chapters/{id}").hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.POST, "/chapters/{chapterId}/lessons").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/chapters/{chapterId}/lessons/{id}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/chapters/{chapterId}/lessons/{id}").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
