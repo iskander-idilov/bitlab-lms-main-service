@@ -8,6 +8,7 @@ import kz.bitlab.springboot.mainservice.repository.CourseRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -16,6 +17,7 @@ public class CourseService {
     private final CourseMapper courseMapper;
     private final CourseRepository courseRepository;
 
+    @Transactional
     public CourseResponse create (CreateCourseRequest request){
         log.info("Creating new course");
         log.debug("Request data: {}", request);
@@ -26,6 +28,7 @@ public class CourseService {
         return courseMapper.toResponse(saved);
     }
 
+    @Transactional(readOnly = true)
     public CourseResponse getById(Long id){
         log.debug("Fetching course with id: {}", id);
 
@@ -35,6 +38,7 @@ public class CourseService {
         return courseMapper.toResponse(result);
     }
 
+    @Transactional
     public CourseResponse update(Long id, UpdateCourseRequest request){
         log.info("Updating course with id: {}", id);
         log.debug("Request data: {}", request);
@@ -47,6 +51,7 @@ public class CourseService {
         return courseMapper.toResponse(saved);
     }
 
+    @Transactional
     public void delete (Long id){
         log.info("Deleting course with id: {}", id);
 

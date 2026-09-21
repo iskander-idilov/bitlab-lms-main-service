@@ -1,6 +1,7 @@
 package kz.bitlab.springboot.mainservice.service;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
 import kz.bitlab.springboot.mainservice.config.MinioProperties;
 import kz.bitlab.springboot.mainservice.dto.response.AttachmentResponse;
 import kz.bitlab.springboot.mainservice.entity.Attachment;
@@ -11,6 +12,7 @@ import kz.bitlab.springboot.mainservice.repository.LessonRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.UUID;
 import io.minio.GetObjectArgs;
@@ -26,6 +28,7 @@ public class AttachmentService {
      private final LessonRepository lessonRepository;
      private final AttachmentMapper attachmentMapper;
 
+     @Transactional
      public AttachmentResponse upload(Long lessonId, MultipartFile file){
          log.info("Uploading attachment for lesson: {}", lessonId);
 
@@ -53,9 +56,29 @@ public class AttachmentService {
          attachment.setUrl(objectName);
          attachment.setLesson(lesson);
 
-         Attachment saved = attachmentRepository.save(attachment);
+         Attachment saved;
+         try {
+             saved = attachmentRepository.save(attachment);
+         } catch (Exception e) {
+             log.error("Failed to save attachment record, removing orphaned file from MinIO: {}", objectName, e);
+             removeObjectQuietly(objectName);
+             throw e;
+         }
 
          return attachmentMapper.toResponse(saved);
+     }
+
+     private void removeObjectQuietly(String objectName) {
+         try {
+             minioClient.removeObject(
+                     RemoveObjectArgs.builder()
+                             .bucket(minioProperties.bucketName())
+                             .object(objectName)
+                             .build()
+             );
+         } catch (Exception cleanupException) {
+             log.error("Failed to clean up orphaned file in MinIO: {}", objectName, cleanupException);
+         }
      }
 
     public InputStream download(Attachment attachment) {
@@ -74,6 +97,7 @@ public class AttachmentService {
         }
     }
 
+    @Transactional(readOnly = true)
     public Attachment getById(Long id) {
         return attachmentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Attachment not found with id: " + id));

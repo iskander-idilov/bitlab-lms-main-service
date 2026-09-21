@@ -4,6 +4,7 @@ import kz.bitlab.springboot.mainservice.dto.request.LoginRequest;
 import kz.bitlab.springboot.mainservice.dto.request.RefreshTokenRequest;
 import kz.bitlab.springboot.mainservice.dto.response.TokenResponse;
 import kz.bitlab.springboot.mainservice.exception.InvalidCredentialsException;
+import kz.bitlab.springboot.mainservice.util.Constants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -17,14 +18,6 @@ import org.springframework.web.client.RestClient;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    private static final String GRANT_TYPE = "grant_type";
-    private static final String GRANT_TYPE_PASSWORD = "password";
-    private static final String GRANT_TYPE_REFRESH_TOKEN = "refresh_token";
-    private static final String CLIENT_ID = "client_id";
-    private static final String CLIENT_SECRET = "client_secret";
-    private static final String USERNAME = "username";
-    private static final String PASSWORD = "password";
-    private static final String REFRESH_TOKEN = "refresh_token";
 
     private final RestClient keycloakRestClient;
     private final KeycloakProperties keycloakProperties;
@@ -33,11 +26,11 @@ public class AuthService {
         log.info("Authenticating user: {}", request.getUsername());
 
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.add(GRANT_TYPE, GRANT_TYPE_PASSWORD);
-        formData.add(CLIENT_ID, keycloakProperties.clientId());
-        formData.add(CLIENT_SECRET, keycloakProperties.clientSecret());
-        formData.add(USERNAME, request.getUsername());
-        formData.add(PASSWORD, request.getPassword());
+        formData.add(Constants.Keycloak.GRANT_TYPE, Constants.Keycloak.GRANT_TYPE_PASSWORD);
+        formData.add(Constants.Keycloak.CLIENT_ID, keycloakProperties.clientId());
+        formData.add(Constants.Keycloak.CLIENT_SECRET, keycloakProperties.clientSecret());
+        formData.add(Constants.Keycloak.USERNAME, request.getUsername());
+        formData.add(Constants.Keycloak.PASSWORD, request.getPassword());
 
         try {
             return keycloakRestClient.post()
@@ -57,10 +50,10 @@ public class AuthService {
         log.info("Refreshing token");
 
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.add(GRANT_TYPE, GRANT_TYPE_REFRESH_TOKEN);
-        formData.add(CLIENT_ID, keycloakProperties.clientId());
-        formData.add(CLIENT_SECRET, keycloakProperties.clientSecret());
-        formData.add(REFRESH_TOKEN, request.refreshToken());
+        formData.add(Constants.Keycloak.GRANT_TYPE, Constants.Keycloak.GRANT_TYPE_REFRESH_TOKEN);
+        formData.add(Constants.Keycloak.CLIENT_ID, keycloakProperties.clientId());
+        formData.add(Constants.Keycloak.CLIENT_SECRET, keycloakProperties.clientSecret());
+        formData.add(Constants.Keycloak.REFRESH_TOKEN, request.refreshToken());
 
         try {
             return keycloakRestClient.post()
