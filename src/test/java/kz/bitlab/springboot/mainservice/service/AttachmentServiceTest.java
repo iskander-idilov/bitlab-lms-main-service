@@ -7,8 +7,10 @@ import kz.bitlab.springboot.mainservice.entity.Lesson;
 import kz.bitlab.springboot.mainservice.mapper.AttachmentMapper;
 import kz.bitlab.springboot.mainservice.repository.AttachmentRepository;
 import kz.bitlab.springboot.mainservice.repository.LessonRepository;
+import io.minio.RemoveObjectArgs;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -16,6 +18,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -76,6 +79,31 @@ class AttachmentServiceTest {
         when(lessonRepository.findById(lessonId)).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class, () -> attachmentService.upload(lessonId, file));
+    }
+
+    @Test
+    void shouldRemoveOrphanedFileFromMinioWhenSaveFails() throws Exception {
+        Long lessonId = 1L;
+        Lesson lesson = new Lesson();
+        lesson.setId(lessonId);
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "test.png", "image/png", "content".getBytes());
+
+        RuntimeException saveFailure = new RuntimeException("DB constraint violation");
+
+        when(lessonRepository.findById(lessonId)).thenReturn(Optional.of(lesson));
+        when(minioProperties.bucketName()).thenReturn("dev-bucket");
+        when(attachmentRepository.save(any(Attachment.class))).thenThrow(saveFailure);
+
+        RuntimeException thrown = assertThrows(RuntimeException.class,
+                () -> attachmentService.upload(lessonId, file));
+        assertSame(saveFailure, thrown);
+
+        ArgumentCaptor<RemoveObjectArgs> captor = ArgumentCaptor.forClass(RemoveObjectArgs.class);
+        verify(minioClient).removeObject(captor.capture());
+        assertEquals("dev-bucket", captor.getValue().bucket());
+        assertTrue(captor.getValue().object().endsWith("-test.png"));
     }
 
     @Test
